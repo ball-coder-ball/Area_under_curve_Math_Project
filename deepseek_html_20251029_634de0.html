@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>พื้นที่ใต้โค้งปกติ 0 → z | Normal Distribution Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #8B5CF6;
+            --primary-dark: #7C3AED;
+            --primary-light: #A78BFA;
+            --secondary: #F0ABFC;
+            --background: #FAF5FF;
+            --card: #FFFFFF;
+            --text: #1F2937;
+            --text-light: #6B7280;
+            --shadow: 0 10px 25px rgba(139, 92, 246, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--background) 0%, #FDF4FF 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+
+        h1 {
+            color: var(--primary-dark);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        h2 {
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--primary-light);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+
+        .chips-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .chip {
+            padding: 8px 16px;
+            background: #F3F4F6;
+            border: 1px solid #E5E7EB;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .chip:hover {
+            background: #EDE9FE;
+            border-color: var(--primary-light);
+        }
+
+        .chip.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: #F3F4F6;
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: #E5E7EB;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .result-item {
+            background: #F8FAFC;
+            border-radius: 12px;
+            padding: 15px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .info-note {
+            background: #F0F9FF;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            border-left: 4px solid var(--primary-light);
+        }
+
+        .info-note p {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>พื้นที่ใต้โค้งปกติ 0 → z</h1>
+            <p class="subtitle">คำนวณและแสดงพื้นที่ใต้โค้งปกติมาตรฐานแบบอินเทอร์แอคทีฟ</p>
+        </header>
+
+        <div class="main-content">
+            <div class="card">
+                <h2>ป้อนค่า Z-Score</h2>
+                
+                <div class="input-group">
+                    <label for="zValue">ค่า z (มาตรฐาน)</label>
+                    <input type="number" id="zValue" step="0.01" value="1.00" placeholder="ป้อนค่า z">
+                </div>
+
+                <div class="chips-container">
+                    <div class="chip" data-z="-3">-3.00</div>
+                    <div class="chip" data-z="-2">-2.00</div>
+                    <div class="chip" data-z="-1">-1.00</div>
+                    <div class="chip" data-z="1">1.00</div>
+                    <div class="chip" data-z="2">2.00</div>
+                    <div class="chip" data-z="3">3.00</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="decimalPlaces">จำนวนทศนิยม</label>
+                    <input type="number" id="decimalPlaces" min="2" max="6" value="4">
+                </div>
+
+                <div class="button-group">
+                    <button id="toggleSign" class="btn-secondary">สลับเครื่องหมาย (±)</button>
+                    <button id="calculate" class="btn-primary">คำนวณ</button>
+                </div>
+
+                <div class="results-grid">
+                    <div class="result-item">
+                        <div class="result-label">พื้นที่ 0 → z</div>
+                        <div class="result-value" id="area0z">0.3413</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Φ(z) (CDF)</div>
+                        <div class="result-value" id="phiZ">0.8413</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Right Tail (z→∞)</div>
+                        <div class="result-value" id="rightTail">0.1587</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">สองฝั่ง (-|z|→|z|)</div>
+                        <div class="result-value" id="twoSided">0.6827</div>
+                    </div>
+                </div>
+
+                <div class="info-note">
+                    <p><strong>หมายเหตุ:</strong> พื้นที่ใต้โค้งปกติทั้งหมดมีค่าเท่ากับ 1</p>
+                    <p>พื้นที่ 0→z จะมีค่าสูงสุด 0.5 เมื่อ z มีค่ามากหรือน้อยมากๆ</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>กราฟโค้งปกติมาตรฐาน</h2>
+                <div class="chart-container">
+                    <canvas id="normalChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>สร้างด้วย HTML, CSS, JavaScript และ Chart.js | ธีมสีม่วงสดใส</p>
+        </footer>
+    </div>
+
+    <script>
+        // ฟังก์ชันทางคณิตศาสตร์สำหรับการคำนวณ
+        function erf(x) {
+            // การประมาณค่า error function ใช้สูตร Abramowitz & Stegun
+            const a1 = 0.254829592;
+            const a2 = -0.284496736;
+            const a3 = 1.421413741;
+            const a4 = -1.453152027;
+            const a5 = 1.061405429;
+            const p = 0.3275911;
+
+            const sign = (x >= 0) ? 1 : -1;
+            x = Math.abs(x);
+
+            const t = 1.0 / (1.0 + p * x);
+            const y = 1.0 - (((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-x * x));
+
+            return sign * y;
+        }
+
+        function normalPDF(x) {
+            // Probability Density Function ของการแจกแจงปกติมาตรฐาน
+            return Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
+        }
+
+        function normalCDF(x) {
+            // Cumulative Distribution Function ของการแจกแจงปกติมาตรฐาน
+            return 0.5 * (1 + erf(x / Math.sqrt(2)));
+        }
+
+        function areaZeroToZ(z) {
+            // พื้นที่จาก 0 ถึง z
+            return Math.abs(normalCDF(z) - 0.5);
+        }
+
+        // ตัวแปร global สำหรับกราฟ
+        let normalChart;
+
+        // ฟังก์ชันสร้างกราฟ
+        function createChart() {
+            const ctx = document.getElementById('normalChart').getContext('2d');
+            
+            // สร้างข้อมูลสำหรับกราฟปกติ
+            const labels = [];
+            const data = [];
+            for (let x = -4; x <= 4; x += 0.1) {
+                labels.push(x.toFixed(1));
+                data.push(normalPDF(x));
+            }
+
+            normalChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Standard Normal Distribution',
+                            data: data,
+                            borderColor: '#8B5CF6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Area 0 to z',
+                            data: [],
+                            borderColor: '#EC4899',
+                            backgroundColor: 'rgba(236, 72, 153, 0.3)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Z-Score',
+                                color: '#6B7280',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Probability Density',
+                                color: '#6B7280',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            min: 0,
+                            max: 0.45,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 12
+                                },
+                                color: '#374151'
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // ฟังก์ชันอัพเดทกราฟตามค่า z
+        function updateChart(z) {
+            if (!normalChart) return;
+
+            const areaData = [];
+            const labels = normalChart.data.labels;
+
+            for (let i = 0; i < labels.length; i++) {
+                const x = parseFloat(labels[i]);
+                if ((z >= 0 && x >= 0 && x <= z) || (z < 0 && x <= 0 && x >= z)) {
+                    areaData.push(normalPDF(x));
+                } else {
+                    areaData.push(null);
+                }
+            }
+
+            normalChart.data.datasets[1].data = areaData;
+            normalChart.update();
+        }
+
+        // ฟังก์ชันคำนวณและอัพเดทผลลัพธ์
+        function calculateAndUpdate() {
+            const z = parseFloat(document.getElementById('zValue').value) || 0;
+            const decimals = parseInt(document.getElementById('decimalPlaces').value) || 4;
+            
+            // คำนวณค่าต่างๆ
+            const area0z = areaZeroToZ(z);
+            const phiZ = normalCDF(z);
+            const rightTail = 1 - phiZ;
+            const twoSided = 2 * area0z;
+            
+            // อัพเดทผลลัพธ์บนหน้าเว็บ
+            document.getElementById('area0z').textContent = area0z.toFixed(decimals);
+            document.getElementById('phiZ').textContent = phiZ.toFixed(decimals);
+            document.getElementById('rightTail').textContent = rightTail.toFixed(decimals);
+            document.getElementById('twoSided').textContent = twoSided.toFixed(decimals);
+            
+            // อัพเดทกราฟ
+            updateChart(z);
+            
+            // อัพเดท chip ที่เลือก
+            document.querySelectorAll('.chip').forEach(chip => {
+                chip.classList.remove('active');
+                if (Math.abs(parseFloat(chip.dataset.z) - Math.abs(z)) < 0.01) {
+                    chip.classList.add('active');
+                }
+            });
+        }
+
+        // ฟังก์ชันสำหรับสลับเครื่องหมาย
+        function toggleSign() {
+            const zInput = document.getElementById('zValue');
+            zInput.value = (-parseFloat(zInput.value) || 0).toFixed(2);
+            calculateAndUpdate();
+        }
+
+        // การตั้งค่า event listeners เมื่อโหลดหน้าเว็บ
+        document.addEventListener('DOMContentLoaded', function() {
+            // สร้างกราฟเริ่มต้น
+            createChart();
+            
+            // คำนวณค่าเริ่มต้น
+            calculateAndUpdate();
+            
+            // Event listener สำหรับปุ่มคำนวณ
+            document.getElementById('calculate').addEventListener('click', calculateAndUpdate);
+            
+            // Event listener สำหรับปุ่มสลับเครื่องหมาย
+            document.getElementById('toggleSign').addEventListener('click', toggleSign);
+            
+            // Event listener สำหรับ chips
+            document.querySelectorAll('.chip').forEach(chip => {
+                chip.addEventListener('click', function() {
+                    const z = this.dataset.z;
+                    document.getElementById('zValue').value = z;
+                    calculateAndUpdate();
+                });
+            });
+            
+            // Event listener สำหรับการกด Enter ใน input
+            document.getElementById('zValue').addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    calculateAndUpdate();
+                }
+            });
+            
+            // Event listener สำหรับการเปลี่ยนจำนวนทศนิยม
+            document.getElementById('decimalPlaces').addEventListener('change', calculateAndUpdate);
+        });
+    </script>
+</body>
+</html>
